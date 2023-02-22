@@ -17,8 +17,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/nndi-oss/greypot"
 	greypotFiber "github.com/nndi-oss/greypot/http/fiber"
+	"github.com/nndi-oss/greypot/http/gin/handlers"
 	"github.com/nndi-oss/greypot/ui"
 	"github.com/playwright-community/playwright-go"
+	"github.com/sirupsen/logrus"
 )
 
 var templateDir string
@@ -62,6 +64,7 @@ func main() {
 			log.Fatalf("failed to read template directory got %v", err)
 		}
 	}
+	logrus.Info("Reading templates from %s", absTemplateDir)
 
 	foundHTMLTemplates := false
 	for _, e := range entries {
@@ -150,6 +153,38 @@ func main() {
 				"id":         nom,
 				"message":    "uploaded the template successfully",
 				"devMessage": "",
+			})
+		})
+
+		studioRouter.Post("/reports/export/excel/*", func(ctx *fiber.Ctx) error {
+			reportId := strings.TrimPrefix(ctx.Params("*"), "/")
+			var body interface{}
+			if err := ctx.BodyParser(&body); err != nil {
+				logrus.Error(err)
+				return ctx.Status(http.StatusInternalServerError).
+					JSON(fiber.Map{
+						"err": err.Error(),
+					})
+			}
+
+			html2Excel := NewHtml2ExcelTemplateEngine()
+			mod := greypot.NewModule(
+				greypot.WithTemplatesRepository(studioTemplateStore),
+				greypot.WithTemplateEngine(html2Excel),
+			)
+			export, err := mod.ReportService.ExportReportHtml(reportId, body)
+			if err != nil {
+				logrus.Error(err)
+				return ctx.Status(http.StatusInternalServerError).
+					JSON(fiber.Map{
+						"err": err.Error(),
+					})
+			}
+
+			return ctx.JSON(handlers.ExportResponse{
+				ID:   reportId,
+				Data: string(export),
+				Type: "excel",
 			})
 		})
 

@@ -8,9 +8,9 @@ tasks:
   build-server:
     deps: [ build-ui ]
     cmds:
-      - go build -o ./bin/greypot-server cmd/greypot-server/*.go
+      - go build -o ./build/greypot-server cmd/greypot-server/*.go
 
   run:
     deps: [ build-server ]
     cmds:
-      - ./bin/greypot-server -templates "examples/fiber_example/templates"
+      - ./build/greypot-server -templates "examples/fiber_example/templates"

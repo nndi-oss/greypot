@@ -75,20 +75,76 @@ function App() {
     return false
   }
 
+  async function uploadAndRenderExcel(event: MouseEvent<HTMLButtonElement>): Promise<boolean> {
+    event.preventDefault()
+
+    const templateRequest = {
+      Name: 'test.html',
+      Content: templateCode
+    }
+
+    let response = await fetch("/_studio/upload-template", {
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Greypot-Studio-Version': '0.0.1-dev',
+      },
+      redirect: 'error',
+      referrerPolicy: 'no-referrer',
+      body: JSON.stringify(templateRequest),
+    });
+
+    if (response.ok) {
+      let testDataJSON = JSON.parse(dataCode)
+      let response = await fetch(`/_studio/reports/export/excel/${templateRequest.Name}`, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Greypot-Studio-Version': '0.0.1-dev',
+        },
+        redirect: 'error',
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(testDataJSON),
+      });
+
+      if (response.ok) {
+        type ExportResponse = {
+          data: string,
+          type: string,
+          reportId: string
+        }
+        let res = await response.json() as ExportResponse;
+
+        downloadRef.current.setAttribute("href", `data:application/octet-stream;base64,${res.data}`)
+        downloadRef.current.setAttribute("download", templateRequest.Name.replace(".html", ".xlsx"))
+        await downloadRef.current.click();
+      }
+    }
+
+    return false
+  }
+
+
   return (
     <div className="App">
       <div className="masthead">
         <div className="grid">
-          <div className="col-10">
+          <div className="col-10 col:sm-12">
             <h1>Greypot Studio v0.0.1</h1>
           </div>
-          <div className="col-2">
+          <div className="col-2 col:sm-12">
             <Message severity="warn" text="Still in development" />
           </div>
         </div>
       </div>
       <div className="grid grid-nogutter">
-        <div className="col-8">
+        <div className="col-8 col:sm-12">
           <h2>HTML Design Template</h2>
           <CodeMirror
             width="100%"
@@ -101,17 +157,8 @@ function App() {
           // editorDidMount={editorDidMount}
           />
         </div>
-        <div className="col-4">
+        <div className="col-4 col:sm-12">
           <h2>Test Data</h2>
-          {/* <MonacoEditor
-            width="100%"
-            height="400"
-            language="json"
-            theme={editorTheme}
-            value={dataCode}
-            options={options}
-            onChange={(newValue, e) => setDataCode(newValue)}
-          /> */}
           <CodeMirror
             width="100%"
             height="400px"
@@ -125,7 +172,8 @@ function App() {
 
       <div className="action-area p-3">
         <a style={{ display: 'none' }} ref={downloadRef} download={downloadName}></a>
-        <Button label="PDF Preview with Test Data" onClick={uploadAndRenderPDF} />
+        <Button label="PDF Preview with Test Data" onClick={uploadAndRenderPDF} />&nbsp;
+        <Button label="Excel Preview with Test Data" onClick={uploadAndRenderExcel} />
       </div>
 
       <footer>
