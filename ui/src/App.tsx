@@ -1,3 +1,4 @@
+import { toBase64 } from 'fast-base64'
 import { MouseEvent, useRef, useState } from 'react'
 import { TabView, TabPanel } from 'primereact/tabview'
 import { Button } from 'primereact/button'
@@ -20,6 +21,14 @@ function App() {
 
   const [downloadName, setDownloadName] = useState('test.pdf')
 
+
+  async function downloadTemplateLocally(event: MouseEvent<HTMLButtonElement>): Promise<boolean> {
+    let utf8Encode = new TextEncoder();
+    let templateAsBase64 = await toBase64(utf8Encode.encode(templateCode))
+    downloadRef.current.setAttribute("href", `data:application/octet-stream;base64,${templateAsBase64}`)
+    downloadRef.current.setAttribute("download", 'greypot-template.html')
+    return await downloadRef.current.click();
+  }
 
   async function uploadAndRenderPDF(event: MouseEvent<HTMLButtonElement>): Promise<boolean> {
     event.preventDefault()
@@ -197,6 +206,7 @@ function App() {
 
       <div className="action-area p-3">
         <a style={{ display: 'none' }} ref={downloadRef} download={downloadName}></a>
+        <Button label="Download Template" onClick={downloadTemplateLocally} />&nbsp;
         <Button label="PDF Preview with Test Data" onClick={uploadAndRenderPDF} />&nbsp;
         <Button label="Excel Preview with Test Data" onClick={uploadAndRenderExcel} />
       </div>
