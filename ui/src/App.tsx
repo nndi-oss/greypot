@@ -143,8 +143,8 @@ function App() {
           </div>
         </div>
       </div>
-      <div className="grid grid-nogutter">
-        <div className="col-8 col:sm-12">
+      <div className="grid">
+        <div className="col-12 md:col-4 sm:col-12 xl:col-8">
           <h2>HTML Design Template</h2>
           <CodeMirror
             width="100%"
@@ -157,7 +157,7 @@ function App() {
           // editorDidMount={editorDidMount}
           />
         </div>
-        <div className="col-4 col:sm-12">
+        <div className="col-12 md:col-4 sm:col-12 xl:col-4">
           <h2>Test Data</h2>
           <CodeMirror
             width="100%"
