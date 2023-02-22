@@ -15,6 +15,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/nndi-oss/greypot"
 	greypotFiber "github.com/nndi-oss/greypot/http/fiber"
 	"github.com/nndi-oss/greypot/http/gin/handlers"
@@ -102,6 +103,8 @@ func main() {
 	}
 
 	app := fiber.New()
+
+	app.Use(limiter.New())
 
 	module := greypot.NewModule(
 		greypot.WithRenderTimeout(10*time.Second),
