@@ -1,4 +1,5 @@
 import { MouseEvent, useRef, useState } from 'react'
+import { TabView, TabPanel } from 'primereact/tabview'
 import { Button } from 'primereact/button'
 import { Message } from 'primereact/message'
 import CodeMirror from '@uiw/react-codemirror';
@@ -146,27 +147,51 @@ function App() {
       <div className="grid">
         <div className="col-12 md:col-4 sm:col-12 xl:col-8">
           <h2>HTML Design Template</h2>
-          <CodeMirror
-            width="100%"
-            height="400px"
-            extensions={[html(), javascript()]}
-            value={templateCode}
-            onChange={(e) => setTemplateCode(e)}
-            theme={editorTheme}
-          // options={options}
-          // editorDidMount={editorDidMount}
-          />
+          <TabView>
+            <TabPanel header="Template Editor">
+              <CodeMirror
+                width="100%"
+                height="400px"
+                extensions={[html(), javascript()]}
+                value={templateCode}
+                onChange={(e) => setTemplateCode(e)}
+                theme={editorTheme}
+              // options={options}
+              // editorDidMount={editorDidMount}
+              />
+            </TabPanel>
+            <TabPanel header="Preview">
+              <iframe 
+                width="100%" 
+                style={{ height: "400px" }} 
+                srcDoc={templateCode} />
+            </TabPanel>
+          </TabView>
         </div>
         <div className="col-12 md:col-4 sm:col-12 xl:col-4">
           <h2>Test Data</h2>
-          <CodeMirror
-            width="100%"
-            height="400px"
-            extensions={[json()]}
-            theme={editorTheme}
-            value={dataCode}
-            onChange={(e) => setDataCode(e)}
-          />
+          <TabView>
+            <TabPanel header="Test Data">
+              <CodeMirror
+                width="100%"
+                height="400px"
+                extensions={[json()]}
+                theme={editorTheme}
+                value={dataCode}
+                onChange={(e) => setDataCode(e)}
+              />
+            </TabPanel>
+            <TabPanel header="cURL Request">
+              <code lang='bash'>
+                curl -i -H "Content-Type: application/json" -X POST "https://greypot-studio.fly.dev/_studio/reports/export/pdf/test.html" -d &nbsp;
+                  "{dataCode.replaceAll('"', '\\"')}"
+
+              </code>
+            </TabPanel>
+            <TabPanel header="Schema">
+              Coming soon...
+            </TabPanel>
+          </TabView>
         </div>
       </div>
 
