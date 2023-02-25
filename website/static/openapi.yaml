@@ -1,0 +1,76 @@
+openapi: "3.1"
+info:
+  version: "0.1.1"
+  title: "Greypot Studio"
+  summary: "Greypot Studio is an API for Report Design and Generation"
+  description: "Greypot Studio is an API for Report Design and Generation"
+  termsOfService: "https://github.com/nndi-oss/greypot"
+  contact:
+    name: "NNDI"
+    url: "https://nndi.cloud/"
+    email: "hello@nndi.cloud"
+
+servers:
+  - url: "https://greypot-studio.fly.dev"
+    description: "Greypot Studio on Fly.io"
+
+  - url: "https://greypot-studio.nndi.cloud/"
+    description: "Greypot Studio Cloud service by NNDI"
+
+externalDocs:
+
+paths:
+  /_studio/upload-template/:
+    post:
+    
+  /_studio/reports/list:
+    get:
+
+  /_studio/reports/export/:
+    get:
+  /_studio/reports/preview/:
+    get:
+  /_studio/reports/render/:
+    get:
+  /_studio/reports/export/html/:
+    post:
+  /_studio/reports/export/pdf/:
+    post:
+  /_studio/reports/export/png/:
+    post:
+    
+  /_studio/reports/export/bulk/html/:
+    post:
+  /_studio/reports/export/bulk/pdf/:
+    post:
+  /_studio/reports/export/bulk/png/:
+    post:
+  
+components:
+  schemas:
+    ExportResponse:
+      type: object
+      properties:
+        ID   string `json:"reportId"`
+        Data string `json:"data"`
+        Type string `json:"type"`
+
+    BulkExportEntry:
+      type: object
+      properties:
+        ID   string `json:"_id"`
+        Data any    `json:"data"`
+
+    BulkExportRequest:
+      type: object
+      properties:
+        ID      string            `json:"_id"`
+        Entries []BulkExportEntry `json:"entries"`
+
+    BulkExportResponse:
+      properties:
+        ID       string           `json:"_id"`
+        ReportID string           `json:"reportId"`
+        Reports  []ExportResponse `json:"reports"`
+  responses:
+    

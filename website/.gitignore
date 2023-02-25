@@ -1,0 +1,6 @@
+*.lock
+*.zip
+*.tar.gz
+/resources/
+/site/
+/public/

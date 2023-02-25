@@ -1,0 +1,71 @@
+hugodeskDir = "~/.hugodesk/"
+theme = "hugo-ridgeway"
+
+baseURL = "https://nndi.cloud/oss/greypot/"
+languageCode = "en-us"
+title = "Greypot"
+description = "Greypot is a library and API for designing and generating Reports"
+Paginate = 20
+
+[Params]
+  RSSLink = "/index.xml"
+  author = "NNDI Ltd" # add your company name
+  github = "nndi-oss" # add your github profile name
+  twitter = "nndi_tech" # add your twitter profile
+  email = "hello@nndi.cloud"
+
+  iconSet = [ "primeicons", "ionicons" ]
+  primevueTheme = "saga-purple"
+
+[[menu.main]]
+    name = "Getting Started"
+    weight = -900
+    url = "/docs/getting-started"
+[[menu.main]]
+    name = "Greypot Studio"
+    weight = -800
+    url = "https://greypot-studio.fly.dev/"
+
+[[menu.main]]
+    name = "API Documentation"
+    weight = -700
+    url = "/openapi"
+[[menu.main]]
+    name = "Docs"
+    weight = -200
+    url = "/docs/"
+[[menu.main]]
+    name = "GitHub"
+    weight = -200
+    url = "https://github.com/nndi-oss/greypot"
+
+
+[[menu.footer]]
+    name = "Getting Started"
+    weight = -900
+    url = "/docs/getting-started"
+[[menu.footer]]
+    name = "Greypot Studio"
+    weight = -800
+    url = "/docs/studio-ui"
+[[menu.footer]]
+    name = "API Documentation"
+    weight = -700
+    url = "/openapi"
+[[menu.main]]
+    name = "Docs"
+    weight = -200
+    url = "/docs/"
+[[menu.footer]]
+    name = "GitHub"
+    weight = -200
+    url = "https://github.com/nndi-oss/greypot"
+
+# [[menu.main]]
+#     name = "Blog"
+#     weight = -100
+#     url = "/blog/"
+# [[menu.main]]
+#     name = "Faq"
+#     weight = -100
+#     url = "/faq/"
