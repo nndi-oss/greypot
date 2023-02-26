@@ -35,10 +35,11 @@ function App() {
 
     const templateRequest = {
       Name: 'test.html',
-      Content: templateCode
+      Template: templateCode,
+      Data: JSON.parse(dataCode),
     }
 
-    let response = await fetch("/_studio/upload-template", {
+    let response = await fetch(`/_studio/generate/pdf/${templateRequest.Name}`, {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -53,33 +54,16 @@ function App() {
     });
 
     if (response.ok) {
-      let testDataJSON = JSON.parse(dataCode)
-      let response = await fetch(`/_studio/reports/export/pdf/${templateRequest.Name}`, {
-        method: 'POST',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Greypot-Studio-Version': '0.0.1-dev',
-        },
-        redirect: 'error',
-        referrerPolicy: 'no-referrer',
-        body: JSON.stringify(testDataJSON),
-      });
-
-      if (response.ok) {
-        type ExportResponse = {
-          data: string,
-          type: string,
-          reportId: string
-        }
-        let res = await response.json() as ExportResponse;
-
-        downloadRef.current.setAttribute("href", `data:application/octet-stream;base64,${res.data}`)
-        downloadRef.current.setAttribute("download", templateRequest.Name.replace(".html", ".pdf"))
-        await downloadRef.current.click();
+      type ExportResponse = {
+        data: string,
+        type: string,
+        reportId: string
       }
+      let res = await response.json() as ExportResponse;
+
+      downloadRef.current.setAttribute("href", `data:application/octet-stream;base64,${res.data}`)
+      downloadRef.current.setAttribute("download", templateRequest.Name.replace(".html", ".pdf"))
+      await downloadRef.current.click();
     }
 
     return false
@@ -170,9 +154,9 @@ function App() {
               />
             </TabPanel>
             <TabPanel header="Preview">
-              <iframe 
-                width="100%" 
-                style={{ height: "400px" }} 
+              <iframe
+                width="100%"
+                style={{ height: "400px" }}
                 srcDoc={templateCode} />
             </TabPanel>
           </TabView>
@@ -193,7 +177,7 @@ function App() {
             <TabPanel header="cURL Request">
               <code lang='bash'>
                 curl -i -H "Content-Type: application/json" -X POST "https://greypot-studio.fly.dev/_studio/reports/export/pdf/test.html" -d &nbsp;
-                  "{dataCode.replaceAll('"', '\\"')}"
+                "{dataCode.replaceAll('"', '\\"')}"
 
               </code>
             </TabPanel>

@@ -40,6 +40,15 @@ func (ftr *inmemoryTemplateRepository) Add(name, content string) error {
 	return nil
 }
 
+func (ftr *inmemoryTemplateRepository) Remove(name string) error {
+	if name == "" {
+		return fmt.Errorf("name cannot be empty")
+	}
+
+	ftr.files.Remove(name)
+	return nil
+}
+
 func (ftr *inmemoryTemplateRepository) ListAll() ([]string, error) {
 	return ftr.listFiles("")
 }

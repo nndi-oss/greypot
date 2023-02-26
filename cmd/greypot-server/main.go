@@ -15,7 +15,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/nndi-oss/greypot"
 	greypotFiber "github.com/nndi-oss/greypot/http/fiber"
 	"github.com/nndi-oss/greypot/http/gin/handlers"
@@ -30,8 +29,9 @@ var port int
 var disableStudioUI bool = false
 
 type UploadTemplateRequest struct {
-	Name    string
-	Content string
+	Name     string
+	Template string
+	Data     any
 }
 
 func init() {
@@ -104,7 +104,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Use(limiter.New())
+	// app.Use(limiter.New())
 
 	module := greypot.NewModule(
 		greypot.WithRenderTimeout(10*time.Second),
@@ -133,7 +133,7 @@ func main() {
 
 		greypotFiber.Use(studioRouter, studioModule)
 
-		studioRouter.Post("/upload-template", func(c *fiber.Ctx) error {
+		studioRouter.Post("/generate/pdf/:id", func(c *fiber.Ctx) error {
 			request := new(UploadTemplateRequest)
 			err := c.BodyParser(&request)
 			if err != nil {
@@ -142,8 +142,9 @@ func main() {
 					"devMessage": err.Error(),
 				})
 			}
-			nom := strings.TrimSpace(request.Name)
-			err = studioTemplateStore.Add(nom, request.Content)
+			reportId := strings.TrimSpace(request.Name)
+			err = studioTemplateStore.Add(reportId, request.Template)
+			defer studioTemplateStore.Remove(reportId)
 
 			if err != nil {
 				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
@@ -152,10 +153,19 @@ func main() {
 				})
 			}
 
-			return c.JSON(fiber.Map{
-				"id":         nom,
-				"message":    "uploaded the template successfully",
-				"devMessage": "",
+			export, err := studioModule.ReportService.ExportReportPdf(reportId, request.Data)
+			if err != nil {
+				logrus.Error(err)
+				return c.Status(http.StatusInternalServerError).
+					JSON(fiber.Map{
+						"err": err.Error(),
+					})
+			}
+
+			return c.JSON(handlers.ExportResponse{
+				ID:   reportId,
+				Data: string(export),
+				Type: "pdf",
 			})
 		})
 
