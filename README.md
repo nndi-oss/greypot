@@ -8,6 +8,15 @@ You can use it in three ways
 * As an API which can be interacted with from any library
 * Use the Greypot Studio for designing and testing the templates in browser
 
+## Quick API Example
+
+You can use the following command to generate a PDF using the Greypot Studio API running on Fly.io
+
+```sh
+$ curl --request POST --url https://greypot-studio.fly.dev/_studio/generate/pdf/test \
+  --header 'Content-Type: application/json' \
+  --data '{ "Name": "test.html", "Template": "<h1>Hello {{data.name}}</h1>", "Data": { "name": "John Smith" } }' | jq -r '.data' | base64 --decode > test.pdf
+```
 
 ## Use as a Go Library
 
@@ -130,13 +139,6 @@ func main() {
 }
 ```
 
-### Using Greypot with net/http
-
-TODO: write this ...
-
-## Use as an API
-
-TODO: write this ...
 
 ### Build Docker Image and run the Container
 
