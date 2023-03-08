@@ -7,36 +7,28 @@ title = "Greypot"
 description = "Greypot is a library and API for designing and generating Reports"
 Paginate = 20
 
-[Params]
-  RSSLink = "/index.xml"
-  author = "NNDI Ltd" # add your company name
-  github = "nndi-oss" # add your github profile name
-  twitter = "nndi_tech" # add your twitter profile
-  email = "hello@nndi.cloud"
-
-  iconSet = [ "primeicons", "ionicons" ]
-  primevueTheme = "saga-purple"
-
 [[menu.main]]
     name = "Getting Started"
-    weight = -900
+    weight = 1
     url = "/docs/getting-started"
 [[menu.main]]
+    name = "Docs"
+    weight = 2
+    url = "/docs/"
+
+[[menu.main]]
     name = "Greypot Studio"
-    weight = -800
+    weight = 3
     url = "https://greypot-studio.fly.dev/"
+
 
 [[menu.main]]
     name = "API Documentation"
-    weight = -700
+    weight = 4
     url = "/openapi"
 [[menu.main]]
-    name = "Docs"
-    weight = -200
-    url = "/docs/"
-[[menu.main]]
     name = "GitHub"
-    weight = -200
+    weight = 5
     url = "https://github.com/nndi-oss/greypot"
 
 
@@ -61,11 +53,92 @@ Paginate = 20
     weight = -200
     url = "https://github.com/nndi-oss/greypot"
 
-# [[menu.main]]
-#     name = "Blog"
-#     weight = -100
-#     url = "/blog/"
-# [[menu.main]]
-#     name = "Faq"
-#     weight = -100
-#     url = "/faq/"
+[Params]
+  RSSLink = "/index.xml"
+  author = "NNDI Ltd" # add your company name
+  github = "nndi-oss" # add your github profile name
+  twitter = "nndi_tech" # add your twitter profile
+  email = "hello@nndi.cloud"
+
+  iconSet = [ "primeicons", "ionicons" ]
+  primevueTheme = "saga-purple"
+
+  cover_image = "https://images.pexels.com/photos/2047905/pexels-photo-2047905.jpeg?auto=compress&cs=tinysrgb&w=1200"
+  cta_description = """
+  Greypot is for busy developers who have to deliver PDF reports quickly.
+  It features a Studio UI for designing the Report template with the same HTML you know and love
+  """
+  cta_getting_started = "docs/getting-started"
+  cta_documentation = "docs"
+
+
+[Params.features]
+enabled = true
+
+[[Params.features.entries]]
+icon = "ti ti-brand-html5"
+title = "HTML Based Design"
+description = """
+Design your reports with the same HTML elements you are used to.
+Greypot uses a Chromium based renderer to print your HTML to PDF
+"""
+
+[[Params.features.entries]]
+icon = "ti ti-ship"
+title = "Platform Agnostic API"
+description = """
+Use the Greypot Studio API from any language and application which can help you to ship Reports or PDF outputs faster in any project.
+"""
+
+[[Params.features.entries]]
+icon = "ti ti-free-rights"
+title = "Open Source"
+description = """
+Greypot is Open Source under the Apache License v2.0. You are free to use it and embed it in your projects whether hobby or commercial
+"""
+
+[[Params.features.entries]]
+icon = "ti ti-books"
+title = "Embeddable Go Library"
+description = """
+Greypot is written in Go and can be used in Go applications as a library - with built in support for Gin and Fiber frameworks.
+"""
+
+[Params.testimonials]
+enabled = false
+
+[[Params.testimonials.entries]]
+icon = ""
+logoURL = ""
+name = "Zikani Nyirenda Mwase"
+company = "NNDI Ltd"
+description = """
+Greypot helped us to speed up development of PDF reports and outputs that would have otherwise taken significant man-hours
+"""
+
+[[Params.testimonials.entries]]
+icon = ""
+logoURL = ""
+name = "XXXX"
+company = "XXXX"
+description = """
+Greypot helped with ...
+"""
+
+[[Params.testimonials.entries]]
+icon = ""
+logoURL = ""
+name = "XXXX"
+company = "XXXX"
+description = """
+Greypot helped with ...
+"""
+
+[[Params.testimonials.entries]]
+icon = ""
+logoURL = ""
+name = "XXXX"
+company = "XXXX"
+description = """
+Greypot helped with ...
+"""
