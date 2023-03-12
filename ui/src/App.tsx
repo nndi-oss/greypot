@@ -1,5 +1,5 @@
 import { toBase64 } from 'fast-base64'
-import { MouseEvent, useRef, useState } from 'react'
+import { MouseEvent, useEffect, useRef, useState } from 'react'
 import { TabView, TabPanel } from 'primereact/tabview'
 import { Button } from 'primereact/button'
 import { Message } from 'primereact/message'
@@ -9,7 +9,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode'
 import './App.css'
-
+import TemplatePreview from './TemplatePreview.jsx'
 import { ExampleHTML, ExampleData } from './examples'
 
 function App() {
@@ -20,7 +20,6 @@ function App() {
   const downloadRef: any = useRef(null)
 
   const [downloadName, setDownloadName] = useState('test.pdf')
-
 
   async function downloadTemplateLocally(event: MouseEvent<HTMLButtonElement>): Promise<boolean> {
     let utf8Encode = new TextEncoder();
@@ -154,10 +153,7 @@ function App() {
               />
             </TabPanel>
             <TabPanel header="Preview">
-              <iframe
-                width="100%"
-                style={{ height: "400px" }}
-                srcDoc={templateCode} />
+              <TemplatePreview htmlTemplateCode={templateCode} testData={dataCode} />
             </TabPanel>
           </TabView>
         </div>
@@ -192,7 +188,7 @@ function App() {
         <a style={{ display: 'none' }} ref={downloadRef} download={downloadName}></a>
         <Button label="Download Template" onClick={downloadTemplateLocally} />&nbsp;
         <Button label="PDF Preview with Test Data" onClick={uploadAndRenderPDF} />&nbsp;
-        <Button label="Excel Preview with Test Data" onClick={uploadAndRenderExcel} />
+        {/* <Button label="Excel Preview with Test Data" onClick={uploadAndRenderExcel} /> */}
       </div>
 
       <footer>
