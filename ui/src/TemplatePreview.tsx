@@ -1,7 +1,12 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { twig } from 'twig'
 
-export default function({ htmlTemplateCode, testData }) {
+interface TemplatePreviewProps {
+    htmlTemplateCode: string 
+    testData: string
+}
+
+export default function({ htmlTemplateCode, testData }: TemplatePreviewProps) {
     const template = twig({
         data: htmlTemplateCode
     })
@@ -9,7 +14,7 @@ export default function({ htmlTemplateCode, testData }) {
     let dataParsed = JSON.parse(testData)
     let renderedTemplate = template.render({ data: dataParsed })
 
-    const [isFullScreen, setIsFullScreen] = useState(false, [])
+    const [isFullScreen, setIsFullScreen] = useState(false)
     function toggleFullScreen() {
         setIsFullScreen(!isFullScreen)
     }

@@ -9,7 +9,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode'
 import './App.css'
-import TemplatePreview from './TemplatePreview.jsx'
+import TemplatePreview from './TemplatePreview'
 import { ExampleHTML, ExampleData } from './examples'
 
 function App() {
