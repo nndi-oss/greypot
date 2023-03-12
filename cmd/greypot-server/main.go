@@ -10,23 +10,23 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/nndi-oss/greypot"
 	greypotFiber "github.com/nndi-oss/greypot/http/fiber"
-	"github.com/nndi-oss/greypot/http/gin/handlers"
 	"github.com/nndi-oss/greypot/ui"
 	"github.com/playwright-community/playwright-go"
 	"github.com/sirupsen/logrus"
 )
 
-var templateDir string
-var host string
-var port int
-var disableStudioUI bool = false
+var (
+	templateDir     string
+	host            string
+	port            int
+	disableStudioUI bool = false
+)
 
 type UploadTemplateRequest struct {
 	Name     string
@@ -42,7 +42,6 @@ func init() {
 }
 
 func main() {
-
 	flag.Parse()
 
 	if templateDir == "" {
@@ -103,7 +102,6 @@ func main() {
 	}
 
 	app := fiber.New()
-
 	// app.Use(limiter.New())
 
 	module := greypot.NewModule(
@@ -121,7 +119,7 @@ func main() {
 		studioTemplateStore := NewInmemoryTemplateRepository()
 		studioModule := greypot.NewModule(
 			greypot.WithRenderTimeout(10*time.Second),
-			greypot.WithViewport(2048, 1920),
+			greypot.WithViewport(200, 200),
 			greypot.WithDjangoTemplateEngine(),
 			greypot.WithTemplatesRepository(studioTemplateStore),
 			greypot.WithPlaywrightRenderer(&playwright.RunOptions{
@@ -133,73 +131,9 @@ func main() {
 
 		greypotFiber.Use(studioRouter, studioModule)
 
-		studioRouter.Post("/generate/pdf/:id", func(c *fiber.Ctx) error {
-			request := new(UploadTemplateRequest)
-			err := c.BodyParser(&request)
-			if err != nil {
-				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-					"message":    "failed to parse request body",
-					"devMessage": err.Error(),
-				})
-			}
-			reportId := strings.TrimSpace(request.Name)
-			err = studioTemplateStore.Add(reportId, request.Template)
-			defer studioTemplateStore.Remove(reportId)
-
-			if err != nil {
-				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-					"message":    "failed to upload template to store",
-					"devMessage": err.Error(),
-				})
-			}
-
-			export, err := studioModule.ReportService.ExportReportPdf(reportId, request.Data)
-			if err != nil {
-				logrus.Error(err)
-				return c.Status(http.StatusInternalServerError).
-					JSON(fiber.Map{
-						"err": err.Error(),
-					})
-			}
-
-			return c.JSON(handlers.ExportResponse{
-				ID:   reportId,
-				Data: string(export),
-				Type: "pdf",
-			})
-		})
-
-		studioRouter.Post("/reports/export/excel/*", func(ctx *fiber.Ctx) error {
-			reportId := strings.TrimPrefix(ctx.Params("*"), "/")
-			var body interface{}
-			if err := ctx.BodyParser(&body); err != nil {
-				logrus.Error(err)
-				return ctx.Status(http.StatusInternalServerError).
-					JSON(fiber.Map{
-						"err": err.Error(),
-					})
-			}
-
-			html2Excel := NewHtml2ExcelTemplateEngine()
-			mod := greypot.NewModule(
-				greypot.WithTemplatesRepository(studioTemplateStore),
-				greypot.WithTemplateEngine(html2Excel),
-			)
-			export, err := mod.ReportService.ExportReportHtml(reportId, body)
-			if err != nil {
-				logrus.Error(err)
-				return ctx.Status(http.StatusInternalServerError).
-					JSON(fiber.Map{
-						"err": err.Error(),
-					})
-			}
-
-			return ctx.JSON(handlers.ExportResponse{
-				ID:   reportId,
-				Data: string(export),
-				Type: "excel",
-			})
-		})
+		studioRouter.Post("/generate/pdf/:id", generatePDF(studioModule, studioTemplateStore))
+		studioRouter.Post("/generate/bulk/pdf/:id", generateBulkPDF(studioModule, studioTemplateStore))
+		studioRouter.Post("/reports/export/excel/*", generateExcel(studioModule, studioTemplateStore))
 
 		frontendDistFS, err := fs.Sub(ui.FrontendFS, "dist")
 		if err != nil {

@@ -98,7 +98,6 @@ func toExcelSheetData(tbl *goquery.Selection) [][]any {
 	if headerRows != nil {
 		if headerRows.Length() > 1 {
 			// TODO: handle multiple header rows...
-
 		} else {
 			firstRow := headerRows.First()
 			tds := firstRow.Children()
