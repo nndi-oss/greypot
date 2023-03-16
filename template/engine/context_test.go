@@ -22,8 +22,8 @@ a
 
 func TestTemplateContext_Sequence2(t *testing.T) {
 	template := `{{- range $i, $item := .Sequence 10 }}
-{{- if lt $i (len $.Values.array) }}
-{{ index $.Values.array $i }}
+{{- if lt $i (len $.Data.array) }}
+{{ index $.Data.array $i }}
 {{- else }}
 0
 {{- end }}
@@ -31,7 +31,7 @@ func TestTemplateContext_Sequence2(t *testing.T) {
 {{- end }}`
 
 	te := NewGolangTemplateEngine()
-	rendered, err := te.Render([]byte(template), &models.TemplateContext{Values: map[string]interface{}{
+	rendered, err := te.Render([]byte(template), &models.TemplateContext{Data: map[string]interface{}{
 		"array": []int{4, 5, 6},
 	}})
 

@@ -1,7 +1,7 @@
 package models
 
 type TemplateContext struct {
-	Values interface{}
+	Data interface{}
 }
 
 func (ctx *TemplateContext) Sequence(size int) []int {

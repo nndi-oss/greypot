@@ -24,7 +24,7 @@ func (pte *pongo2TemplateEngine) Render(templateContent []byte, ctx *models.Temp
 		return nil, stacktrace.Propagate(err, "failed to parse template file: %s with data: %+v", templateContent, ctx)
 	}
 
-	pongoCtx := pongo2.Context{"data": ctx.Values}
+	pongoCtx := pongo2.Context{"data": ctx.Data}
 	var out bytes.Buffer
 	if err := t.ExecuteWriter(pongoCtx, &out); err != nil {
 		return nil, stacktrace.Propagate(err, "failed to execute template file: %s with data: %+v", templateContent, ctx)

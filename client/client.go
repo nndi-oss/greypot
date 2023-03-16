@@ -79,7 +79,7 @@ func (c *ReportBuilderClient) GetBulk(reportId string, data interface{}, exportT
 		return nil, stacktrace.Propagate(err, "failed to read response body")
 	}
 
-	var jsonResp = new(bulkResponse)
+	jsonResp := new(bulkResponse)
 	if err := json.Unmarshal(respBody, jsonResp); err != nil {
 		return nil, stacktrace.Propagate(err, "failed to unmarshal response body from json")
 	}

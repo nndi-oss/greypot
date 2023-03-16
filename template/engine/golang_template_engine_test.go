@@ -11,18 +11,18 @@ var golangTemplateRepo = NewGolangTemplateEngine()
 
 func TestGolangTemplateRepository_Render(t *testing.T) {
 	assertTemplate(t,
-		"{{ .Values.name }}",
+		"{{ .Data.name }}",
 		map[string]interface{}{"name": "matan"},
 		"matan",
 	)
 
 	assertTemplate(t,
-		"hello {{ .Values.name }}",
+		"hello {{ .Data.name }}",
 		map[string]interface{}{"name": "matan"},
 		"hello matan",
 	)
 
-	assertTemplate(t, `{{- range .Values.items }}
+	assertTemplate(t, `{{- range .Data.items }}
 {{ . }}
 {{- end }}
 `,
@@ -32,7 +32,7 @@ func TestGolangTemplateRepository_Render(t *testing.T) {
 }
 
 func assertTemplate(t *testing.T, template string, data interface{}, result string) {
-	rendered, err := golangTemplateRepo.Render([]byte(template), &models.TemplateContext{Values: data})
+	rendered, err := golangTemplateRepo.Render([]byte(template), &models.TemplateContext{Data: data})
 	assert.Nil(t, err)
 	assert.EqualValues(t, result, rendered)
 }

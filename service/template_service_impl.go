@@ -31,7 +31,7 @@ func (ts *templateService) GetTemplate(reportId string) ([]byte, error) {
 
 func (ts *templateService) RenderTemplate(reportId string, data interface{}) ([]byte, error) {
 	ctx := &models.TemplateContext{
-		Values: data,
+		Data: data,
 	}
 
 	tmpl, err := ts.repo.LoadTemplate(reportId)
