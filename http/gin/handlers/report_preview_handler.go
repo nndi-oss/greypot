@@ -40,7 +40,7 @@ func ReportPreviewHandler(templateService service.TemplateService,
 
 		rendered, err := templateEngine.Render(
 			[]byte(previewTemplate),
-			&models.TemplateContext{Values: map[string]interface{}{
+			&models.TemplateContext{Data: map[string]interface{}{
 				"reportId": reportId,
 				"reports":  templates,
 				"data":     data,
