@@ -1,6 +1,6 @@
 openapi: "3.1"
 info:
-  version: "0.1.1"
+  version: "0.1.1" # TODO: automatically replace this with the build tag...
   title: "Greypot Studio"
   summary: "Greypot Studio is an API for Report Design and Generation"
   description: "Greypot Studio is an API for Report Design and Generation"
@@ -20,9 +20,10 @@ servers:
 externalDocs:
 
 paths:
-  /_studio/upload-template/:
+  "/_studio/generate/pdf/{id}":
     post:
-    
+      
+
   /_studio/reports/list:
     get:
 
@@ -48,12 +49,31 @@ paths:
   
 components:
   schemas:
+    GenerateRequest:
+      type: object
+      properties:
+        Name:
+          type: string
+          required: true
+        Template:
+          type: string
+          description: HTML Content of the template
+          required: true
+        Data:
+          type: string
+          description: JSON encoded data for the template
+          required: true
     ExportResponse:
       type: object
       properties:
-        ID   string `json:"reportId"`
-        Data string `json:"data"`
-        Type string `json:"type"`
+        reportId:
+          type: string
+        data: 
+          type: string
+          description: Base64 encoded data file of the generated report
+        type:
+          type: string
+          description: the type of report, typically "pdf"
 
     BulkExportEntry:
       type: object

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -39,6 +41,22 @@ func generatePDF(studioModule *greypot.Module, studioTemplateStore *inmemoryTemp
 				JSON(fiber.Map{
 					"err": err.Error(),
 				})
+		}
+
+		if c.Accepts("json", "application/json", "application/pdf") == "application/pdf" {
+			tmpFileName, err := writeToTempFile(export)
+			if err != nil {
+				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+					"message": "failed to process request",
+				})
+			}
+
+			downloadFileName := request.Name
+			if !strings.HasSuffix(downloadFileName, ".pdf") {
+				downloadFileName = fmt.Sprintf("%s.pdf", downloadFileName)
+			}
+
+			return c.Download(tmpFileName, downloadFileName)
 		}
 
 		return c.JSON(handlers.ExportResponse{
@@ -117,10 +135,43 @@ func generateExcel(studioModule *greypot.Module, studioTemplateStore *inmemoryTe
 				})
 		}
 
+		if c.Accepts("json", "application/json", "application/octet-stream") == "application/octet-stream" {
+			tmpFileName, err := writeToTempFile(export)
+			if err != nil {
+				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+					"message": "failed to process request",
+				})
+			}
+			downloadFileName := reportId
+			if !strings.HasSuffix(downloadFileName, ".xlsx") {
+				downloadFileName = fmt.Sprintf("%s.xlsx", downloadFileName)
+			}
+			return c.Download(tmpFileName, downloadFileName)
+		}
+
 		return c.JSON(handlers.ExportResponse{
 			ID:   reportId,
 			Data: string(export),
 			Type: "excel",
 		})
 	}
+}
+
+func writeToTempFile(base64EncodedFile []byte) (string, error) {
+	tmpFile, err := os.CreateTemp(os.TempDir(), "greypot_")
+	if err != nil {
+		return "", err
+	}
+	defer tmpFile.Close()
+	exportBytes, err := base64.StdEncoding.DecodeString(string(base64EncodedFile))
+	if err != nil {
+		return "", err
+	}
+
+	_, err = tmpFile.Write(exportBytes)
+	if err != nil {
+		return "", err
+	}
+
+	return tmpFile.Name(), nil
 }

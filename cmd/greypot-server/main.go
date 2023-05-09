@@ -64,7 +64,7 @@ func main() {
 			log.Fatalf("failed to read template directory got %v", err)
 		}
 	}
-	logrus.Info("Reading templates from %s", absTemplateDir)
+	logrus.Infof("Reading templates from %s", absTemplateDir)
 
 	foundHTMLTemplates := false
 	for _, e := range entries {
