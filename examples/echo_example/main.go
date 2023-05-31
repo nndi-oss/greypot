@@ -4,26 +4,31 @@
 package main
 
 import (
+	"log"
+	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v5"
 	"github.com/nndi-oss/greypot"
 	"github.com/nndi-oss/greypot/examples"
-	greypotGin "github.com/nndi-oss/greypot/http/gin"
+	greypotEcho "github.com/nndi-oss/greypot/http/echo"
 )
 
 func main() {
-	app := gin.New()
+	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "OK")
+	})
 
 	module := greypot.NewModule(
 		greypot.WithRenderTimeout(10*time.Second),
 		greypot.WithViewport(2048, 1920),
 		greypot.WithDjangoTemplateEngine(),
-		greypot.WithTemplatesFromFilesystem("./templates/"),
+		greypot.WithTemplatesFromFilesystem("../templates/"),
 		greypot.WithPlaywrightRenderer(),
 	)
 
-	greypotGin.Use(app, module)
+	greypotEcho.Use(e, module)
 
 	embedModule := greypot.NewModule(
 		greypot.WithRenderTimeout(10*time.Second),
@@ -33,7 +38,9 @@ func main() {
 		greypot.WithPlaywrightRenderer(),
 	)
 
-	greypotGin.Use(app.Group("/embedded/"), embedModule)
+	greypotEcho.UseGroup(e.Group("/embedded/"), embedModule)
 
-	app.Run(":3000")
+	if err := e.Start(":3000"); err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
 }

@@ -4,16 +4,13 @@
 package main
 
 import (
-	"embed"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nndi-oss/greypot"
+	"github.com/nndi-oss/greypot/examples"
 	greypotFiber "github.com/nndi-oss/greypot/http/fiber"
 )
-
-//go:embed "templates"
-var templatesFS embed.FS
 
 func main() {
 	app := fiber.New()
@@ -31,7 +28,7 @@ func main() {
 	embedModule := greypot.NewModule(
 		greypot.WithRenderTimeout(10*time.Second),
 		greypot.WithViewport(2048, 1920),
-		greypot.WithTemplatesFromFS(templatesFS),
+		greypot.WithTemplatesFromFS(examples.ExampleTemplatesFS),
 		greypot.WithGolangTemplateEngine(),
 		greypot.WithPlaywrightRenderer(),
 	)
