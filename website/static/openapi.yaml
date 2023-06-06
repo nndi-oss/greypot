@@ -1,4 +1,4 @@
-openapi: "3.1"
+openapi: "3.1.0"
 info:
   version: "0.1.1" # TODO: automatically replace this with the build tag...
   title: "Greypot Studio"
@@ -14,38 +14,14 @@ servers:
   - url: "https://greypot-studio.fly.dev"
     description: "Greypot Studio on Fly.io"
 
-  - url: "https://greypot-studio.nndi.cloud/"
-    description: "Greypot Studio Cloud service by NNDI"
-
-externalDocs:
-
 paths:
-  "/_studio/generate/pdf/{id}":
+  /_studio/generate/pdf/{id}:
     post:
-      
-
-  /_studio/reports/list:
-    get:
-
-  /_studio/reports/export/:
-    get:
-  /_studio/reports/preview/:
-    get:
-  /_studio/reports/render/:
-    get:
-  /_studio/reports/export/html/:
-    post:
-  /_studio/reports/export/pdf/:
-    post:
-  /_studio/reports/export/png/:
-    post:
-    
-  /_studio/reports/export/bulk/html/:
-    post:
-  /_studio/reports/export/bulk/pdf/:
-    post:
-  /_studio/reports/export/bulk/png/:
-    post:
+      responses:
+        default:
+          description: Default response
+          application/json:
+            $ref: '#/components/schemas/ErrorResponse'
   
 components:
   schemas:
@@ -74,23 +50,10 @@ components:
         type:
           type: string
           description: the type of report, typically "pdf"
-
-    BulkExportEntry:
+    ErrorResponse:
       type: object
       properties:
-        ID   string `json:"_id"`
-        Data any    `json:"data"`
+        message: 
+          type: string
 
-    BulkExportRequest:
-      type: object
-      properties:
-        ID      string            `json:"_id"`
-        Entries []BulkExportEntry `json:"entries"`
-
-    BulkExportResponse:
-      properties:
-        ID       string           `json:"_id"`
-        ReportID string           `json:"reportId"`
-        Reports  []ExportResponse `json:"reports"`
-  responses:
     
