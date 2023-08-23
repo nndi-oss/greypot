@@ -1,10 +1,12 @@
 package main
 
 import (
+	"archive/zip"
 	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -69,9 +71,8 @@ func generatePDF(studioModule *greypot.Module, studioTemplateStore *inmemoryTemp
 
 func generateBulkPDF(studioModule *greypot.Module, studioTemplateStore *inmemoryTemplateRepository) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		reportId := strings.TrimPrefix(c.Params("*"), "/")
-		body := new(handlers.BulkExportRequest)
-		if err := c.BodyParser(&body); err != nil {
+		request := new(BulkUploadTemplateRequest)
+		if err := c.BodyParser(&request); err != nil {
 			logrus.Error(err)
 			return c.Status(http.StatusInternalServerError).
 				JSON(fiber.Map{
@@ -79,13 +80,23 @@ func generateBulkPDF(studioModule *greypot.Module, studioTemplateStore *inmemory
 				})
 		}
 
+		reportId := strings.TrimSpace(request.Name)
+		err := studioTemplateStore.Add(reportId, request.Template)
+		defer studioTemplateStore.Remove(reportId)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"message":    "failed to upload template to store",
+				"devMessage": err.Error(),
+			})
+		}
+
 		bulkResponse := &handlers.BulkExportResponse{
-			ID:       body.ID,
+			ID:       reportId,
 			ReportID: reportId,
 			Reports:  make([]handlers.ExportResponse, 0),
 		}
 
-		for _, entry := range body.Entries {
+		for _, entry := range request.Entries {
 			entryReal := entry
 			reportData := entryReal.Data
 			var export []byte
@@ -103,6 +114,36 @@ func generateBulkPDF(studioModule *greypot.Module, studioTemplateStore *inmemory
 				Data: string(export),
 				Type: "pdf",
 			})
+		}
+
+		if c.Accepts("application/zip", "application/octet-stream") == "application/zip" {
+			// var zipBuffer bytes.Buffer
+			zipWriter := zip.NewWriter(c)
+			defer zipWriter.Close()
+			for _, report := range bulkResponse.Reports {
+				reportFileName := strings.ReplaceAll(report.ID, "/", "_")
+				reportFileName = strings.ReplaceAll(reportFileName, ":", "_")
+
+				w, err := zipWriter.Create(filepath.Clean(fmt.Sprintf("%s.pdf", reportFileName)))
+				if err != nil {
+					logrus.Error(err)
+					return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+						"message": "failed to process request",
+					})
+				}
+				fileData, err := base64.StdEncoding.DecodeString(report.Data)
+				if err != nil {
+					logrus.Error(err)
+					return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+						"message": "failed to process request",
+					})
+				}
+				w.Write(fileData)
+			}
+
+			c.Type("zip")
+			c.Set(fiber.HeaderContentDisposition, `attachment; filename="reports.zip"`)
+			return c.SendStatus(200)
 		}
 
 		return c.JSON(bulkResponse)

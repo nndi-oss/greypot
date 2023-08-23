@@ -56,7 +56,7 @@ func (ftr *inmemoryTemplateRepository) ListAll() ([]string, error) {
 func (ftr *inmemoryTemplateRepository) LoadTemplate(templateId string) ([]byte, error) {
 	item, found := ftr.files.Get(strings.TrimSpace(templateId))
 	if !found {
-		return nil, fmt.Errorf("template not found in in-mem ory repository")
+		return nil, fmt.Errorf("template not found in in-memory repository")
 	}
 	return item.Content, nil
 }

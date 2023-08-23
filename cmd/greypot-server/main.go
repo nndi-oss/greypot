@@ -28,12 +28,6 @@ var (
 	disableStudioUI bool = false
 )
 
-type UploadTemplateRequest struct {
-	Name     string
-	Template string
-	Data     any
-}
-
 func init() {
 	flag.StringVar(&templateDir, "templates", "./templates/", "Path to the directory with templates")
 	flag.StringVar(&host, "host", "0.0.0.0", "Host for server")
