@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"archive/zip"
+	"encoding/base64"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/labstack/echo/v5"
@@ -110,6 +113,35 @@ func BulkReportExportHandler(reportService service.ReportService, kind string) e
 				Data: string(export),
 				Type: kind,
 			})
+		}
+
+		if ctx.Request().Header.Get("Accept") == "application/zip" || ctx.Request().Header.Get("Accept") == "application/octet-stream" {
+			zipWriter := zip.NewWriter(ctx.Response())
+			defer zipWriter.Close()
+			for _, report := range bulkResponse.Reports {
+				reportFileName := strings.ReplaceAll(report.ID, "/", "_")
+				reportFileName = strings.ReplaceAll(reportFileName, ":", "_")
+
+				w, err := zipWriter.Create(filepath.Clean(fmt.Sprintf("%s.pdf", reportFileName)))
+				if err != nil {
+					logrus.Error(err)
+					return ctx.JSON(http.StatusInternalServerError, responseMap{
+						"err": err.Error(),
+					})
+				}
+				fileData, err := base64.StdEncoding.DecodeString(report.Data)
+				if err != nil {
+					logrus.Error(err)
+					return ctx.JSON(http.StatusInternalServerError, responseMap{
+						"err": err.Error(),
+					})
+				}
+				w.Write(fileData)
+			}
+
+			ctx.Request().Header["Content-Type"] = []string{"application/zip"}
+			ctx.Set(echo.HeaderContentDisposition, `attachment; filename="reports.zip"`)
+			return nil
 		}
 
 		return ctx.JSON(http.StatusOK, bulkResponse)

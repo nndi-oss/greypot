@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"archive/zip"
+	"encoding/base64"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -107,6 +110,34 @@ func BulkReportExportHandler(reportService service.ReportService, kind string) g
 				Data: string(export),
 				Type: kind,
 			})
+		}
+
+		if ctx.GetHeader("Accept") == "application/zip" || ctx.GetHeader("Accept") == "application/octet-stream" {
+			zipWriter := zip.NewWriter(ctx.Writer)
+			defer zipWriter.Close()
+			for _, report := range bulkResponse.Reports {
+				reportFileName := strings.ReplaceAll(report.ID, "/", "_")
+				reportFileName = strings.ReplaceAll(reportFileName, ":", "_")
+
+				w, err := zipWriter.Create(filepath.Clean(fmt.Sprintf("%s.pdf", reportFileName)))
+				if err != nil {
+					logrus.Error(err)
+					ctx.String(http.StatusInternalServerError, err.Error())
+					return
+				}
+				fileData, err := base64.StdEncoding.DecodeString(report.Data)
+				if err != nil {
+					logrus.Error(err)
+					ctx.String(http.StatusInternalServerError, err.Error())
+					return
+				}
+				w.Write(fileData)
+			}
+
+			ctx.Header("Content-Type", "application/zip")
+			ctx.Set("Content-Disposition", `attachment; filename="reports.zip"`)
+			ctx.Status(200)
+			return
 		}
 
 		ctx.JSON(http.StatusOK, bulkResponse)
