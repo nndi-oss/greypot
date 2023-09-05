@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"archive/zip"
+	"encoding/base64"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -114,6 +117,35 @@ func BulkReportExportHandler(reportService service.ReportService, kind string) f
 				Data: string(export),
 				Type: kind,
 			})
+		}
+
+		if ctx.Accepts("application/zip", "application/octet-stream") == "application/zip" {
+			zipWriter := zip.NewWriter(ctx)
+			defer zipWriter.Close()
+			for _, report := range bulkResponse.Reports {
+				reportFileName := strings.ReplaceAll(report.ID, "/", "_")
+				reportFileName = strings.ReplaceAll(reportFileName, ":", "_")
+
+				w, err := zipWriter.Create(filepath.Clean(fmt.Sprintf("%s.pdf", reportFileName)))
+				if err != nil {
+					logrus.Error(err)
+					return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
+						"message": "failed to process request",
+					})
+				}
+				fileData, err := base64.StdEncoding.DecodeString(report.Data)
+				if err != nil {
+					logrus.Error(err)
+					return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
+						"message": "failed to process request",
+					})
+				}
+				w.Write(fileData)
+			}
+
+			ctx.Type("zip")
+			ctx.Set(fiber.HeaderContentDisposition, `attachment; filename="reports.zip"`)
+			return ctx.SendStatus(200)
 		}
 
 		return ctx.JSON(bulkResponse)
